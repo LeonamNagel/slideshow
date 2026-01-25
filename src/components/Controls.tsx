@@ -23,15 +23,21 @@ const TRANSITION_OPTIONS: { value: TransitionEffect; label: string; description?
 interface ControlsProps {
   settings: SlideshowSettings;
   audio: AudioTrack | null;
+  photosCount: number;
+  isExporting: boolean;
   onUpdateSettings: (updates: Partial<SlideshowSettings>) => void;
   onSetAudio: (file: File | null) => void;
+  onExport: () => void;
 }
 
 export function Controls({
   settings,
   audio,
+  photosCount,
+  isExporting,
   onUpdateSettings,
   onSetAudio,
+  onExport,
 }: ControlsProps) {
   const audioInputRef = useRef<HTMLInputElement>(null);
 
@@ -39,6 +45,13 @@ export function Controls({
     if (e.target.files && e.target.files.length > 0) {
       onSetAudio(e.target.files[0]);
     }
+  };
+
+  const estimatedDuration = photosCount * settings.photoDuration;
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.round(seconds % 60);
+    return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
   };
 
   return (
@@ -139,6 +152,23 @@ export function Controls({
             </div>
           )}
         </div>
+      </div>
+
+      <div className="control-group export-section">
+        <div className="export-info">
+          {photosCount > 0 && (
+            <span className="export-duration">
+              Duracao estimada: {formatDuration(estimatedDuration)}
+            </span>
+          )}
+        </div>
+        <button
+          className="export-btn"
+          onClick={onExport}
+          disabled={photosCount === 0 || isExporting}
+        >
+          {isExporting ? 'Exportando...' : 'Exportar MP4'}
+        </button>
       </div>
     </div>
   );
