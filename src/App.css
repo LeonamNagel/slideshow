@@ -1,13 +1,20 @@
 .app {
   min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile */
   background: linear-gradient(135deg, #1e1e2e 0%, #181825 100%);
   color: #cdd6f4;
+  overflow-x: hidden;
 }
 
 .app-header {
   text-align: center;
   padding: 24px 20px;
   border-bottom: 1px solid #313244;
+  position: sticky;
+  top: 0;
+  background: rgba(30, 30, 46, 0.95);
+  backdrop-filter: blur(10px);
+  z-index: 100;
 }
 
 .app-header h1 {
@@ -45,7 +52,7 @@
   gap: 20px;
 }
 
-/* Responsive */
+/* Tablet */
 @media (max-width: 1024px) {
   .app-main {
     grid-template-columns: 1fr;
@@ -56,13 +63,66 @@
   }
 }
 
+/* Mobile */
 @media (max-width: 640px) {
+  .app-header {
+    padding: 16px;
+  }
+
   .app-header h1 {
     font-size: 1.5rem;
   }
 
+  .app-header p {
+    font-size: 0.85rem;
+    margin-top: 4px;
+  }
+
   .app-main {
-    padding: 16px;
-    gap: 16px;
+    padding: 12px;
+    gap: 12px;
+  }
+}
+
+/* Small phones */
+@media (max-width: 380px) {
+  .app-header h1 {
+    font-size: 1.3rem;
+  }
+
+  .app-header p {
+    display: none;
+  }
+
+  .app-main {
+    padding: 8px;
+    gap: 8px;
+  }
+}
+
+/* Landscape mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .app-header {
+    padding: 8px 16px;
+  }
+
+  .app-header h1 {
+    font-size: 1.2rem;
+  }
+
+  .app-header p {
+    display: none;
+  }
+
+  .app-main {
+    padding: 8px;
+    gap: 8px;
+  }
+}
+
+/* Safe area for notched phones */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .app-main {
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
   }
 }

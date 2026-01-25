@@ -157,3 +157,132 @@
 .export-btn.secondary:hover {
   background: #585b70;
 }
+
+/* Mobile */
+@media (max-width: 640px) {
+  .export-modal {
+    padding: 24px 20px;
+    border-radius: 14px;
+    width: 92%;
+    max-width: none;
+    margin: 16px;
+  }
+
+  .export-modal-header {
+    margin-bottom: 20px;
+  }
+
+  .export-icon {
+    font-size: 1.75rem;
+  }
+
+  .export-modal-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .export-modal-content {
+    margin-bottom: 20px;
+  }
+
+  .stage-label {
+    font-size: 0.9rem;
+  }
+
+  .stage-progress {
+    font-size: 1.1rem;
+  }
+
+  .export-progress-bar {
+    height: 10px;
+    margin-bottom: 14px;
+  }
+
+  .export-message {
+    font-size: 0.9rem;
+  }
+
+  .export-warning {
+    padding: 10px 14px;
+    font-size: 0.8rem;
+  }
+
+  .export-modal-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .export-btn {
+    width: 100%;
+    padding: 14px 24px;
+    font-size: 1rem;
+    border-radius: 10px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .export-btn:hover {
+    transform: none;
+  }
+
+  .export-btn:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Small phones */
+@media (max-width: 380px) {
+  .export-modal {
+    padding: 20px 16px;
+    border-radius: 12px;
+    margin: 12px;
+    width: calc(100% - 24px);
+  }
+
+  .export-modal-header {
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .export-icon {
+    font-size: 1.5rem;
+  }
+
+  .export-modal-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .stage-label {
+    font-size: 0.85rem;
+  }
+
+  .stage-progress {
+    font-size: 1rem;
+  }
+
+  .export-progress-bar {
+    height: 8px;
+  }
+
+  .export-message {
+    font-size: 0.85rem;
+  }
+
+  .export-warning {
+    padding: 8px 12px;
+    font-size: 0.75rem;
+    margin-top: 12px;
+  }
+
+  .export-btn {
+    padding: 12px 20px;
+    font-size: 0.95rem;
+  }
+}
+
+/* Safe area for notched phones */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .export-modal-overlay {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}

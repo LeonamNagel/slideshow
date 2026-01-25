@@ -9,6 +9,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  gap: 12px;
 }
 
 .upload-header h3 {
@@ -21,17 +22,24 @@
   background: #f38ba8;
   color: #1e1e2e;
   border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 600;
   transition: all 0.2s;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .clear-btn:hover {
   background: #eba0ac;
   transform: translateY(-1px);
+}
+
+.clear-btn:active {
+  transform: translateY(0);
 }
 
 .dropzone {
@@ -42,9 +50,11 @@
   cursor: pointer;
   transition: all 0.3s;
   background: #181825;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .dropzone:hover,
+.dropzone:active,
 .dropzone.dragging {
   border-color: #89b4fa;
   background: rgba(137, 180, 250, 0.1);
@@ -89,6 +99,7 @@
   cursor: grab;
   transition: all 0.2s;
   border: 2px solid transparent;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .photo-item:hover {
@@ -105,12 +116,13 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  pointer-events: none;
 }
 
 .photo-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.5) 100%);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.6) 100%);
   opacity: 0;
   transition: opacity 0.2s;
   display: flex;
@@ -126,7 +138,7 @@
 .photo-number {
   background: #89b4fa;
   color: #1e1e2e;
-  padding: 2px 8px;
+  padding: 3px 8px;
   border-radius: 4px;
   font-size: 0.8rem;
   font-weight: 600;
@@ -136,19 +148,114 @@
   background: #f38ba8;
   color: #1e1e2e;
   border: none;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.1rem;
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .remove-btn:hover {
   background: #eba0ac;
   transform: scale(1.1);
+}
+
+.remove-btn:active {
+  transform: scale(0.95);
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .photo-upload {
+    padding: 16px;
+    border-radius: 10px;
+  }
+
+  .upload-header h3 {
+    font-size: 1rem;
+  }
+
+  .dropzone {
+    padding: 30px 16px;
+    border-radius: 10px;
+  }
+
+  .dropzone-icon {
+    font-size: 2.5rem;
+  }
+
+  .dropzone p {
+    font-size: 0.9rem;
+  }
+
+  .dropzone-hint {
+    font-size: 0.8rem;
+  }
+
+  .photo-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  /* Always show overlay on mobile for touch */
+  .photo-overlay {
+    opacity: 1;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 50%, transparent 50%, rgba(0,0,0,0.5) 100%);
+  }
+
+  .photo-number {
+    padding: 2px 6px;
+    font-size: 0.75rem;
+  }
+
+  .remove-btn {
+    width: 26px;
+    height: 26px;
+    font-size: 1rem;
+  }
+}
+
+/* Small phones */
+@media (max-width: 380px) {
+  .photo-upload {
+    padding: 12px;
+  }
+
+  .upload-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .clear-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .dropzone {
+    padding: 24px 12px;
+  }
+
+  .dropzone-icon {
+    font-size: 2rem;
+  }
+
+  .photo-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+}
+
+/* Touch devices - show overlays */
+@media (hover: none) and (pointer: coarse) {
+  .photo-overlay {
+    opacity: 1;
+  }
 }

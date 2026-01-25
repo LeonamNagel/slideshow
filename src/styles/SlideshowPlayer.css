@@ -608,3 +608,180 @@
   height: 100%;
   object-fit: cover;
 }
+
+/* ============================================
+   MOBILE STYLES
+   ============================================ */
+
+/* Touch devices - always show overlay */
+@media (hover: none) and (pointer: coarse) {
+  .player-overlay {
+    opacity: 1;
+  }
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .slideshow-player {
+    min-height: 250px;
+  }
+
+  .control-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 1.1rem;
+  }
+
+  .control-btn.play-btn {
+    width: 56px;
+    height: 56px;
+    font-size: 1.3rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .slideshow-player {
+    border-radius: 10px;
+    min-height: 200px;
+  }
+
+  .player-overlay {
+    padding: 12px;
+    opacity: 1;
+  }
+
+  .control-btn {
+    width: 42px;
+    height: 42px;
+    font-size: 1rem;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .control-btn.play-btn {
+    width: 52px;
+    height: 52px;
+    font-size: 1.2rem;
+  }
+
+  .control-btn:hover {
+    transform: none;
+  }
+
+  .control-btn:active {
+    transform: scale(0.95);
+  }
+
+  .slide-counter {
+    top: 12px;
+    right: 12px;
+    padding: 4px 10px;
+    font-size: 0.8rem;
+  }
+
+  .thumbnail-strip {
+    gap: 6px;
+    padding: 6px 0;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .thumbnail {
+    width: 50px;
+    height: 34px;
+    border-radius: 3px;
+  }
+
+  .progress-bar {
+    height: 3px;
+  }
+
+  .empty-icon {
+    font-size: 3rem;
+  }
+
+  .empty-message p {
+    font-size: 0.95rem;
+  }
+}
+
+/* Small phones */
+@media (max-width: 380px) {
+  .slideshow-player {
+    border-radius: 8px;
+    min-height: 180px;
+  }
+
+  .player-overlay {
+    padding: 8px;
+  }
+
+  .player-controls {
+    gap: 8px;
+  }
+
+  .control-btn {
+    width: 38px;
+    height: 38px;
+    font-size: 0.9rem;
+  }
+
+  .control-btn.play-btn {
+    width: 46px;
+    height: 46px;
+    font-size: 1.1rem;
+  }
+
+  .thumbnail {
+    width: 44px;
+    height: 30px;
+  }
+
+  .slide-counter {
+    padding: 3px 8px;
+    font-size: 0.75rem;
+  }
+
+  .empty-icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+  }
+
+  .empty-message p {
+    font-size: 0.85rem;
+  }
+}
+
+/* Landscape mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .slideshow-player {
+    min-height: 100%;
+  }
+
+  .player-overlay {
+    padding: 8px 16px;
+  }
+
+  .control-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+  }
+
+  .control-btn.play-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 1rem;
+  }
+
+  .thumbnail-strip {
+    display: none;
+  }
+
+  .slide-counter {
+    top: 8px;
+    right: 8px;
+    padding: 3px 8px;
+    font-size: 0.75rem;
+  }
+}
