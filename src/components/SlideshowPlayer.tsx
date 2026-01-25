@@ -1,7 +1,33 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import type { RefObject } from 'react';
 import type { Photo, SlideshowSettings, AudioTrack } from '../types';
 import '../styles/SlideshowPlayer.css';
+
+// Ken Burns animation variants for dynamic variety
+const KENBURNS_ANIMATIONS = [
+  'kenburns-zoom-in-left',
+  'kenburns-zoom-in-right',
+  'kenburns-zoom-out-center',
+  'kenburns-zoom-in-top',
+  'kenburns-zoom-out-bottom',
+  'kenburns-pan-left',
+  'kenburns-pan-right',
+  'kenburns-drift-diagonal',
+];
+
+const GENTLE_DRIFT_ANIMATIONS = [
+  'gentle-float',
+  'gentle-float-alt',
+  'gentle-sway',
+  'gentle-rise',
+];
+
+const BREATHE_ANIMATIONS = [
+  'breathe-pulse',
+  'breathe-pulse-alt',
+  'breathe-expand',
+  'breathe-contract',
+];
 
 interface SlideshowPlayerProps {
   photos: Photo[];
@@ -59,9 +85,43 @@ export function SlideshowPlayer({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isFullscreen, onToggleFullscreen, onTogglePlay, onPrevSlide, onNextSlide]);
 
+  // Generate animation assignments for each photo (memoized to maintain consistency)
+  const photoAnimations = useMemo(() => {
+    return photos.map((photo, index) => {
+      // Use photo id hash + index for deterministic but varied animations
+      const hash = photo.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+
+      return {
+        kenburns: KENBURNS_ANIMATIONS[(hash + index) % KENBURNS_ANIMATIONS.length],
+        gentleDrift: GENTLE_DRIFT_ANIMATIONS[(hash + index) % GENTLE_DRIFT_ANIMATIONS.length],
+        breathe: BREATHE_ANIMATIONS[(hash + index) % BREATHE_ANIMATIONS.length],
+      };
+    });
+  }, [photos]);
+
   const getTransitionClass = () => {
     return `transition-${settings.transitionEffect}`;
   };
+
+  const getAnimationForSlide = (index: number): string => {
+    if (!photoAnimations[index]) return KENBURNS_ANIMATIONS[0];
+
+    switch (settings.transitionEffect) {
+      case 'kenburns':
+      case 'cinematic':
+        return photoAnimations[index].kenburns;
+      case 'gentle-drift':
+        return photoAnimations[index].gentleDrift;
+      case 'breathe':
+        return photoAnimations[index].breathe;
+      default:
+        return KENBURNS_ANIMATIONS[0];
+    }
+  };
+
+  const isCinematicEffect = ['kenburns', 'cinematic', 'gentle-drift', 'breathe'].includes(
+    settings.transitionEffect
+  );
 
   if (photos.length === 0) {
     return (
@@ -92,7 +152,10 @@ export function SlideshowPlayer({
             } ${index === prevIndexRef.current && index !== currentIndex ? 'prev' : ''}`}
             style={{
               transitionDuration: `${settings.transitionDuration}ms`,
-            }}
+              '--transition-duration': `${settings.transitionDuration}ms`,
+              '--photo-duration': `${settings.photoDuration}s`,
+              '--kenburns-animation': isCinematicEffect ? getAnimationForSlide(index) : undefined,
+            } as React.CSSProperties}
           >
             <img src={photo.url} alt={photo.name} />
           </div>

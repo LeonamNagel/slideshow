@@ -2,7 +2,13 @@ import { useRef } from 'react';
 import type { SlideshowSettings, TransitionEffect, AudioTrack } from '../types';
 import '../styles/Controls.css';
 
-const TRANSITION_OPTIONS: { value: TransitionEffect; label: string }[] = [
+const TRANSITION_OPTIONS: { value: TransitionEffect; label: string; description?: string }[] = [
+  // Efeitos Cinematograficos (recomendados)
+  { value: 'cinematic', label: 'Cinematico', description: 'Ken Burns com variacoes automaticas' },
+  { value: 'kenburns', label: 'Ken Burns', description: 'Zoom e pan suave estilo documentario' },
+  { value: 'gentle-drift', label: 'Flutuante', description: 'Movimento sutil e delicado' },
+  { value: 'breathe', label: 'Respiracao', description: 'Zoom pulsante suave' },
+  // Efeitos Basicos
   { value: 'fade', label: 'Fade' },
   { value: 'slide-left', label: 'Deslizar Esquerda' },
   { value: 'slide-right', label: 'Deslizar Direita' },

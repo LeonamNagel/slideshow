@@ -7,7 +7,22 @@ export type TransitionEffect =
   | 'zoom-in'
   | 'zoom-out'
   | 'flip'
-  | 'blur';
+  | 'blur'
+  | 'kenburns'
+  | 'cinematic'
+  | 'gentle-drift'
+  | 'breathe';
+
+// Variações do Ken Burns para criar dinamismo
+export type KenBurnsVariant =
+  | 'zoom-in-left'
+  | 'zoom-in-right'
+  | 'zoom-out-center'
+  | 'zoom-in-top'
+  | 'zoom-out-bottom'
+  | 'pan-left'
+  | 'pan-right'
+  | 'drift-diagonal';
 
 export interface Photo {
   id: string;
