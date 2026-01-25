@@ -1,0 +1,68 @@
+.app {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1e1e2e 0%, #181825 100%);
+  color: #cdd6f4;
+}
+
+.app-header {
+  text-align: center;
+  padding: 24px 20px;
+  border-bottom: 1px solid #313244;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #89b4fa 0%, #cba6f7 50%, #f38ba8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.app-header p {
+  margin: 8px 0 0;
+  color: #6c7086;
+  font-size: 0.95rem;
+}
+
+.app-main {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  padding: 24px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.player-section {
+  min-width: 0;
+}
+
+.control-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .app-main {
+    grid-template-columns: 1fr;
+  }
+
+  .control-panel {
+    order: 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .app-main {
+    padding: 16px;
+    gap: 16px;
+  }
+}
