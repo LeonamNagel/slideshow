@@ -2,6 +2,12 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import type { Photo, SlideshowSettings, AudioTrack, TransitionEffect } from '../types';
 
+// Helper to detect mobile devices
+const isMobileDevice = () => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+    (window.matchMedia && window.matchMedia('(max-width: 768px)').matches);
+};
+
 const defaultSettings: SlideshowSettings = {
   photoDuration: 3,
   transitionDuration: 500,
@@ -157,8 +163,97 @@ export function useSlideshow() {
     }
   }, [pause]);
 
+  const playerContainerRef = useRef<HTMLDivElement | null>(null);
+
+  const enterFullscreen = useCallback(async (element: HTMLElement) => {
+    try {
+      if (element.requestFullscreen) {
+        await element.requestFullscreen();
+      } else if ((element as any).webkitRequestFullscreen) {
+        await (element as any).webkitRequestFullscreen();
+      } else if ((element as any).msRequestFullscreen) {
+        await (element as any).msRequestFullscreen();
+      }
+
+      // Try to lock orientation to landscape on mobile
+      if (isMobileDevice() && screen.orientation && 'lock' in screen.orientation) {
+        try {
+          await (screen.orientation as any).lock('landscape');
+        } catch {
+          // Orientation lock not supported or denied
+        }
+      }
+
+      setIsFullscreen(true);
+    } catch {
+      // Fallback to CSS fullscreen
+      setIsFullscreen(true);
+    }
+  }, []);
+
+  const exitFullscreen = useCallback(async () => {
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else if ((document as any).webkitExitFullscreen) {
+        await (document as any).webkitExitFullscreen();
+      } else if ((document as any).msExitFullscreen) {
+        await (document as any).msExitFullscreen();
+      }
+
+      // Unlock orientation
+      if (screen.orientation && 'unlock' in screen.orientation) {
+        try {
+          (screen.orientation as any).unlock();
+        } catch {
+          // Ignore
+        }
+      }
+    } catch {
+      // Ignore errors
+    }
+    setIsFullscreen(false);
+  }, []);
+
   const toggleFullscreen = useCallback(() => {
-    setIsFullscreen(prev => !prev);
+    if (isFullscreen) {
+      exitFullscreen();
+    } else if (playerContainerRef.current) {
+      enterFullscreen(playerContainerRef.current);
+    } else {
+      setIsFullscreen(prev => !prev);
+    }
+  }, [isFullscreen, enterFullscreen, exitFullscreen]);
+
+  // Listen for fullscreen changes (user pressing ESC, etc.)
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isCurrentlyFullscreen = !!(
+        document.fullscreenElement ||
+        (document as any).webkitFullscreenElement ||
+        (document as any).msFullscreenElement
+      );
+      setIsFullscreen(isCurrentlyFullscreen);
+
+      // Unlock orientation when exiting fullscreen
+      if (!isCurrentlyFullscreen && screen.orientation && 'unlock' in screen.orientation) {
+        try {
+          (screen.orientation as any).unlock();
+        } catch {
+          // Ignore
+        }
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('msfullscreenchange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('msfullscreenchange', handleFullscreenChange);
+    };
   }, []);
 
   // Auto-advance slides
@@ -199,6 +294,7 @@ export function useSlideshow() {
     isPlaying,
     isFullscreen,
     audioRef,
+    playerContainerRef,
 
     // Photo actions
     addPhotos,
@@ -222,5 +318,7 @@ export function useSlideshow() {
     togglePlay,
     stop,
     toggleFullscreen,
+    enterFullscreen,
+    exitFullscreen,
   };
 }

@@ -46,6 +46,7 @@ function App() {
             isPlaying={slideshow.isPlaying}
             isFullscreen={slideshow.isFullscreen}
             audioRef={slideshow.audioRef}
+            playerContainerRef={slideshow.playerContainerRef}
             onTogglePlay={slideshow.togglePlay}
             onPrevSlide={slideshow.prevSlide}
             onNextSlide={slideshow.nextSlide}

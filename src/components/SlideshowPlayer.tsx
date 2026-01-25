@@ -1,5 +1,5 @@
-import { useEffect, useRef, useMemo } from 'react';
-import type { RefObject } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
+import type { RefObject, MutableRefObject } from 'react';
 import type { Photo, SlideshowSettings, AudioTrack } from '../types';
 import '../styles/SlideshowPlayer.css';
 
@@ -37,6 +37,7 @@ interface SlideshowPlayerProps {
   isPlaying: boolean;
   isFullscreen: boolean;
   audioRef: RefObject<HTMLAudioElement | null>;
+  playerContainerRef: MutableRefObject<HTMLDivElement | null>;
   onTogglePlay: () => void;
   onPrevSlide: () => void;
   onNextSlide: () => void;
@@ -53,6 +54,7 @@ export function SlideshowPlayer({
   isPlaying,
   isFullscreen,
   audioRef,
+  playerContainerRef,
   onTogglePlay,
   onPrevSlide,
   onNextSlide,
@@ -60,7 +62,6 @@ export function SlideshowPlayer({
   onToggleFullscreen,
   onGoToSlide,
 }: SlideshowPlayerProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
   const prevIndexRef = useRef(currentIndex);
 
   useEffect(() => {
@@ -136,7 +137,7 @@ export function SlideshowPlayer({
 
   return (
     <div
-      ref={containerRef}
+      ref={playerContainerRef}
       className={`slideshow-player ${isFullscreen ? 'fullscreen' : ''}`}
     >
       {audio && (
@@ -163,49 +164,64 @@ export function SlideshowPlayer({
       </div>
 
       <div className="player-overlay">
-        <div className="progress-bar">
-          <div
-            className="progress"
-            style={{
-              animationDuration: isPlaying ? `${settings.photoDuration}s` : '0s',
-              animationPlayState: isPlaying ? 'running' : 'paused',
-            }}
-            key={`${currentIndex}-${isPlaying}`}
-          />
-        </div>
-
-        <div className="player-controls">
-          <button className="control-btn" onClick={onPrevSlide} title="Anterior">
-            ⏮
-          </button>
-          <button className="control-btn" onClick={onStop} title="Parar">
-            ⏹
-          </button>
-          <button className="control-btn play-btn" onClick={onTogglePlay} title={isPlaying ? 'Pausar' : 'Reproduzir'}>
-            {isPlaying ? '⏸' : '▶'}
-          </button>
-          <button className="control-btn" onClick={onNextSlide} title="Proximo">
-            ⏭
-          </button>
-          <button className="control-btn" onClick={onToggleFullscreen} title="Tela Cheia">
-            {isFullscreen ? '⛶' : '⛶'}
+        {/* Top bar with counter */}
+        <div className="player-top-bar">
+          <div className="slide-counter">
+            {currentIndex + 1} / {photos.length}
+          </div>
+          <button className="control-btn control-btn-small" onClick={onToggleFullscreen} title={isFullscreen ? 'Sair da Tela Cheia' : 'Tela Cheia'}>
+            {isFullscreen ? '✕' : '⛶'}
           </button>
         </div>
 
-        <div className="slide-counter">
-          {currentIndex + 1} / {photos.length}
-        </div>
-
-        <div className="thumbnail-strip">
-          {photos.map((photo, index) => (
-            <button
-              key={photo.id}
-              className={`thumbnail ${index === currentIndex ? 'active' : ''}`}
-              onClick={() => onGoToSlide(index)}
-            >
-              <img src={photo.url} alt={photo.name} />
+        {/* Center play button (only when paused) */}
+        {!isPlaying && (
+          <div className="player-center">
+            <button className="control-btn play-btn-large" onClick={onTogglePlay} title="Reproduzir">
+              ▶
             </button>
-          ))}
+          </div>
+        )}
+
+        {/* Bottom controls */}
+        <div className="player-bottom-bar">
+          <div className="progress-bar">
+            <div
+              className="progress"
+              style={{
+                animationDuration: isPlaying ? `${settings.photoDuration}s` : '0s',
+                animationPlayState: isPlaying ? 'running' : 'paused',
+              }}
+              key={`${currentIndex}-${isPlaying}`}
+            />
+          </div>
+
+          <div className="player-controls">
+            <button className="control-btn" onClick={onPrevSlide} title="Anterior">
+              ⏮
+            </button>
+            <button className="control-btn" onClick={onStop} title="Parar">
+              ⏹
+            </button>
+            <button className="control-btn play-btn" onClick={onTogglePlay} title={isPlaying ? 'Pausar' : 'Reproduzir'}>
+              {isPlaying ? '⏸' : '▶'}
+            </button>
+            <button className="control-btn" onClick={onNextSlide} title="Próximo">
+              ⏭
+            </button>
+          </div>
+
+          <div className="thumbnail-strip">
+            {photos.map((photo, index) => (
+              <button
+                key={photo.id}
+                className={`thumbnail ${index === currentIndex ? 'active' : ''}`}
+                onClick={() => onGoToSlide(index)}
+              >
+                <img src={photo.url} alt={photo.name} />
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
