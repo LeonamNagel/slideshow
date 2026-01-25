@@ -1,13 +1,14 @@
 .export-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.25s ease-out;
 }
 
 @keyframes fadeIn {
@@ -20,104 +21,107 @@
 }
 
 .export-modal {
-  background: #1e1e2e;
-  border-radius: 16px;
-  padding: 32px;
-  max-width: 480px;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 36px;
+  max-width: 440px;
   width: 90%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
   animation: slideUp 0.3s ease-out;
 }
 
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(16px) scale(0.98);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
 .export-modal-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
+  gap: 14px;
+  margin-bottom: 28px;
 }
 
 .export-icon {
-  font-size: 2rem;
+  font-size: 2.2rem;
   line-height: 1;
 }
 
 .export-modal-header h2 {
   margin: 0;
   font-size: 1.5rem;
-  color: #cdd6f4;
+  font-weight: 600;
+  color: #1d1d1f;
+  letter-spacing: -0.02em;
 }
 
 .export-modal-content {
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 .export-stage {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .stage-label {
   font-size: 1rem;
-  color: #a6adc8;
+  color: #86868b;
   font-weight: 500;
 }
 
 .stage-progress {
   font-size: 1.25rem;
-  font-weight: 700;
-  color: #89b4fa;
+  font-weight: 600;
+  color: #007aff;
 }
 
 .export-progress-bar {
-  height: 12px;
-  background: #313244;
-  border-radius: 6px;
+  height: 6px;
+  background: #e5e5ea;
+  border-radius: 3px;
   overflow: hidden;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .export-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #89b4fa, #b4befe);
-  border-radius: 6px;
+  background: #007aff;
+  border-radius: 3px;
   transition: width 0.3s ease-out;
 }
 
 .export-progress-fill.completed {
-  background: linear-gradient(90deg, #a6e3a1, #94e2d5);
+  background: #34c759;
 }
 
 .export-progress-fill.error {
-  background: linear-gradient(90deg, #f38ba8, #eba0ac);
+  background: #ff3b30;
 }
 
 .export-message {
-  color: #cdd6f4;
+  color: #1d1d1f;
   font-size: 0.95rem;
   margin: 0;
   text-align: center;
+  font-weight: 400;
 }
 
 .export-warning {
-  margin-top: 16px;
-  padding: 12px 16px;
-  background: rgba(249, 226, 175, 0.1);
-  border: 1px solid rgba(249, 226, 175, 0.3);
-  border-radius: 8px;
-  color: #f9e2af;
+  margin-top: 18px;
+  padding: 14px 18px;
+  background: #fffbeb;
+  border: 1px solid #fef08a;
+  border-radius: 10px;
+  color: #92400e;
   font-size: 0.85rem;
   text-align: center;
   line-height: 1.5;
@@ -130,58 +134,66 @@
 }
 
 .export-btn {
-  padding: 12px 32px;
-  border-radius: 8px;
+  padding: 14px 36px;
+  border-radius: 12px;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   border: none;
 }
 
 .export-btn.primary {
-  background: linear-gradient(135deg, #89b4fa 0%, #b4befe 100%);
-  color: #1e1e2e;
+  background: #007aff;
+  color: #ffffff;
 }
 
 .export-btn.primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(137, 180, 250, 0.4);
+  background: #0066d6;
+  transform: scale(1.02);
+}
+
+.export-btn.primary:active {
+  transform: scale(0.98);
 }
 
 .export-btn.secondary {
-  background: #45475a;
-  color: #cdd6f4;
+  background: #f5f5f7;
+  color: #1d1d1f;
 }
 
 .export-btn.secondary:hover {
-  background: #585b70;
+  background: #e5e5ea;
+}
+
+.export-btn.secondary:active {
+  transform: scale(0.98);
 }
 
 /* Mobile */
 @media (max-width: 640px) {
   .export-modal {
-    padding: 24px 20px;
-    border-radius: 14px;
+    padding: 28px 24px;
+    border-radius: 16px;
     width: 92%;
     max-width: none;
     margin: 16px;
   }
 
   .export-modal-header {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
   }
 
   .export-icon {
-    font-size: 1.75rem;
+    font-size: 1.9rem;
   }
 
   .export-modal-header h2 {
-    font-size: 1.25rem;
+    font-size: 1.3rem;
   }
 
   .export-modal-content {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
   }
 
   .stage-label {
@@ -193,8 +205,8 @@
   }
 
   .export-progress-bar {
-    height: 10px;
-    margin-bottom: 14px;
+    height: 5px;
+    margin-bottom: 16px;
   }
 
   .export-message {
@@ -202,7 +214,7 @@
   }
 
   .export-warning {
-    padding: 10px 14px;
+    padding: 12px 16px;
     font-size: 0.8rem;
   }
 
@@ -213,9 +225,9 @@
 
   .export-btn {
     width: 100%;
-    padding: 14px 24px;
+    padding: 16px 28px;
     font-size: 1rem;
-    border-radius: 10px;
+    border-radius: 12px;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
   }
@@ -232,23 +244,23 @@
 /* Small phones */
 @media (max-width: 380px) {
   .export-modal {
-    padding: 20px 16px;
-    border-radius: 12px;
+    padding: 24px 20px;
+    border-radius: 14px;
     margin: 12px;
     width: calc(100% - 24px);
   }
 
   .export-modal-header {
-    gap: 10px;
-    margin-bottom: 16px;
+    gap: 12px;
+    margin-bottom: 20px;
   }
 
   .export-icon {
-    font-size: 1.5rem;
+    font-size: 1.7rem;
   }
 
   .export-modal-header h2 {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
   }
 
   .stage-label {
@@ -260,7 +272,7 @@
   }
 
   .export-progress-bar {
-    height: 8px;
+    height: 4px;
   }
 
   .export-message {
@@ -268,13 +280,13 @@
   }
 
   .export-warning {
-    padding: 8px 12px;
+    padding: 10px 14px;
     font-size: 0.75rem;
-    margin-top: 12px;
+    margin-top: 14px;
   }
 
   .export-btn {
-    padding: 12px 20px;
+    padding: 14px 24px;
     font-size: 0.95rem;
   }
 }

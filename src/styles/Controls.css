@@ -1,35 +1,40 @@
 .controls {
-  background: #1e1e2e;
-  border-radius: 12px;
-  padding: 20px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 .controls h3 {
-  margin: 0 0 20px 0;
-  color: #cdd6f4;
-  font-size: 1.1rem;
+  margin: 0 0 24px 0;
+  color: #1d1d1f;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .control-group {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .control-group label {
   display: block;
-  color: #a6adc8;
-  margin-bottom: 8px;
+  color: #86868b;
+  margin-bottom: 10px;
   font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .control-group label strong {
-  color: #89b4fa;
+  color: #007aff;
+  font-weight: 600;
 }
 
 .control-group input[type="range"] {
   width: 100%;
-  height: 8px;
-  border-radius: 4px;
-  background: #45475a;
+  height: 4px;
+  border-radius: 2px;
+  background: #e5e5ea;
   outline: none;
   -webkit-appearance: none;
   touch-action: manipulation;
@@ -37,52 +42,57 @@
 
 .control-group input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  background: #89b4fa;
+  background: #ffffff;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
 }
 
 .control-group input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.1);
-  background: #b4befe;
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
 }
 
 .control-group input[type="range"]::-moz-range-thumb {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  background: #89b4fa;
+  background: #ffffff;
   cursor: pointer;
   border: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
 }
 
 .control-group select {
   width: 100%;
-  padding: 12px 14px;
-  border-radius: 8px;
-  border: 1px solid #45475a;
-  background: #181825;
-  color: #cdd6f4;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #e5e5ea;
+  background: #ffffff;
+  color: #1d1d1f;
   font-size: 1rem;
   cursor: pointer;
   outline: none;
   transition: all 0.2s;
   -webkit-appearance: none;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236c7086' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2386868b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 36px;
+  background-position: right 14px center;
+  padding-right: 40px;
+  font-weight: 400;
 }
 
-.control-group select:hover,
+.control-group select:hover {
+  border-color: #c7c7cc;
+}
+
 .control-group select:focus {
-  border-color: #89b4fa;
+  border-color: #007aff;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
 }
 
 .checkbox-group label {
@@ -90,14 +100,14 @@
   align-items: center;
   gap: 12px;
   cursor: pointer;
-  padding: 8px 0;
+  padding: 10px 0;
   -webkit-tap-highlight-color: transparent;
 }
 
 .checkbox-group input[type="checkbox"] {
   width: 22px;
   height: 22px;
-  accent-color: #89b4fa;
+  accent-color: #007aff;
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -105,54 +115,55 @@
 .audio-controls {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .audio-btn {
-  background: linear-gradient(135deg, #89b4fa 0%, #b4befe 100%);
-  color: #1e1e2e;
+  background: #007aff;
+  color: #ffffff;
   border: none;
-  padding: 14px 16px;
-  border-radius: 10px;
+  padding: 14px 18px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 500;
   transition: all 0.2s;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 
 .audio-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(137, 180, 250, 0.3);
+  background: #0066d6;
+  transform: scale(1.01);
 }
 
 .audio-btn:active {
-  transform: translateY(0);
+  transform: scale(0.98);
 }
 
 .audio-info {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: #181825;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid #45475a;
-  min-height: 44px;
+  gap: 12px;
+  background: #f5f5f7;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #e5e5ea;
+  min-height: 48px;
 }
 
 .audio-name {
   flex: 1;
-  color: #a6e3a1;
+  color: #34c759;
   font-size: 0.9rem;
+  font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .audio-duration {
-  color: #6c7086;
+  color: #86868b;
   font-size: 0.85rem;
   flex-shrink: 0;
 }
@@ -162,7 +173,7 @@
   align-items: center;
   gap: 10px;
   cursor: pointer;
-  color: #a6adc8;
+  color: #1d1d1f;
   font-size: 0.9rem;
   padding: 10px 0;
   -webkit-tap-highlight-color: transparent;
@@ -171,20 +182,20 @@
 .fit-to-music-label input[type="checkbox"] {
   width: 20px;
   height: 20px;
-  accent-color: #cba6f7;
+  accent-color: #af52de;
   cursor: pointer;
   flex-shrink: 0;
 }
 
 .remove-audio-btn {
-  background: #f38ba8;
-  color: #1e1e2e;
+  background: #ff3b30;
+  color: #ffffff;
   border: none;
   width: 32px;
   height: 32px;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: 1rem;
   line-height: 1;
   display: flex;
   align-items: center;
@@ -195,8 +206,8 @@
 }
 
 .remove-audio-btn:hover {
-  background: #eba0ac;
-  transform: scale(1.1);
+  background: #d62d22;
+  transform: scale(1.08);
 }
 
 .remove-audio-btn:active {
@@ -205,50 +216,50 @@
 
 /* Export Section */
 .export-section {
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid #313244;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e5ea;
 }
 
 .export-info {
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .export-duration {
-  color: #6c7086;
+  color: #86868b;
   font-size: 0.9rem;
 }
 
 .export-section .export-btn {
   width: 100%;
-  background: linear-gradient(135deg, #a6e3a1 0%, #94e2d5 100%);
-  color: #1e1e2e;
+  background: #34c759;
+  color: #ffffff;
   border: none;
-  padding: 16px 20px;
-  border-radius: 12px;
+  padding: 16px 22px;
+  border-radius: 14px;
   cursor: pointer;
   font-size: 1.1rem;
-  font-weight: 700;
+  font-weight: 600;
   transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 
 .export-section .export-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(166, 227, 161, 0.4);
+  background: #2db14e;
+  transform: scale(1.01);
 }
 
 .export-section .export-btn:active:not(:disabled) {
-  transform: translateY(0);
+  transform: scale(0.98);
 }
 
 .export-section .export-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
   transform: none;
 }
@@ -256,17 +267,17 @@
 /* Mobile */
 @media (max-width: 640px) {
   .controls {
-    padding: 16px;
-    border-radius: 10px;
+    padding: 20px;
+    border-radius: 14px;
   }
 
   .controls h3 {
-    font-size: 1rem;
-    margin-bottom: 16px;
+    font-size: 1.05rem;
+    margin-bottom: 20px;
   }
 
   .control-group {
-    margin-bottom: 16px;
+    margin-bottom: 20px;
   }
 
   .control-group label {
@@ -274,29 +285,29 @@
   }
 
   .control-group input[type="range"] {
-    height: 10px;
+    height: 6px;
   }
 
   .control-group input[type="range"]::-webkit-slider-thumb {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
   }
 
   .control-group input[type="range"]::-moz-range-thumb {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
   }
 
   .export-section {
-    margin-top: 16px;
-    padding-top: 16px;
+    margin-top: 20px;
+    padding-top: 20px;
   }
 }
 
 /* Small phones */
 @media (max-width: 380px) {
   .controls {
-    padding: 12px;
+    padding: 16px;
   }
 
   .audio-info {

@@ -1,10 +1,11 @@
 .slideshow-player {
   position: relative;
-  background: #11111b;
-  border-radius: 12px;
+  background: #000000;
+  border-radius: 16px;
   overflow: hidden;
   aspect-ratio: 16/9;
   min-height: 300px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 .slideshow-player.fullscreen {
@@ -19,23 +20,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #f5f5f7;
 }
 
 .empty-message {
   text-align: center;
-  color: #6c7086;
+  color: #86868b;
 }
 
 .empty-icon {
   font-size: 4rem;
   display: block;
   margin-bottom: 16px;
-  opacity: 0.5;
+  opacity: 0.6;
 }
 
 .empty-message p {
   font-size: 1.1rem;
   margin: 0;
+  font-weight: 500;
 }
 
 .slides-container {
@@ -51,7 +54,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #11111b;
+  background: #000000;
   overflow: hidden;
 }
 
@@ -462,15 +465,15 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 16px;
+  padding: 20px;
   opacity: 0;
   transition: opacity 0.3s;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.5) 0%,
-    transparent 20%,
-    transparent 80%,
-    rgba(0, 0, 0, 0.7) 100%
+    rgba(0, 0, 0, 0.4) 0%,
+    transparent 25%,
+    transparent 75%,
+    rgba(0, 0, 0, 0.6) 100%
   );
 }
 
@@ -481,15 +484,15 @@
 
 /* Progress Bar */
 .progress-bar {
-  height: 4px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 2px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 1.5px;
   overflow: hidden;
 }
 
 .progress {
   height: 100%;
-  background: linear-gradient(90deg, #89b4fa, #b4befe);
+  background: #ffffff;
   width: 0%;
   animation: progress-fill linear forwards;
 }
@@ -508,50 +511,55 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   flex: 1;
 }
 
 .control-btn {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
   border: none;
   width: 48px;
   height: 48px;
   border-radius: 50%;
   color: white;
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .control-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
-  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.28);
+  transform: scale(1.06);
 }
 
 .control-btn.play-btn {
-  width: 64px;
-  height: 64px;
-  font-size: 1.5rem;
-  background: linear-gradient(135deg, #89b4fa 0%, #b4befe 100%);
+  width: 68px;
+  height: 68px;
+  font-size: 1.6rem;
+  background: rgba(255, 255, 255, 0.95);
+  color: #1d1d1f;
 }
 
 .control-btn.play-btn:hover {
-  box-shadow: 0 4px 20px rgba(137, 180, 250, 0.4);
+  background: #ffffff;
+  transform: scale(1.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 /* Slide Counter */
 .slide-counter {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(10px);
-  padding: 6px 12px;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  padding: 6px 14px;
   border-radius: 20px;
   color: white;
   font-size: 0.9rem;
@@ -561,15 +569,15 @@
 /* Thumbnail Strip */
 .thumbnail-strip {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   overflow-x: auto;
-  padding: 8px 0;
+  padding: 10px 0;
   scrollbar-width: thin;
-  scrollbar-color: #45475a transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 }
 
 .thumbnail-strip::-webkit-scrollbar {
-  height: 6px;
+  height: 4px;
 }
 
 .thumbnail-strip::-webkit-scrollbar-track {
@@ -577,30 +585,31 @@
 }
 
 .thumbnail-strip::-webkit-scrollbar-thumb {
-  background: #45475a;
-  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
 }
 
 .thumbnail {
   flex-shrink: 0;
-  width: 60px;
-  height: 40px;
-  border-radius: 4px;
+  width: 64px;
+  height: 42px;
+  border-radius: 6px;
   overflow: hidden;
   border: 2px solid transparent;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   padding: 0;
   background: none;
 }
 
 .thumbnail:hover {
-  border-color: rgba(255, 255, 255, 0.5);
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: scale(1.05);
 }
 
 .thumbnail.active {
-  border-color: #89b4fa;
-  box-shadow: 0 0 10px rgba(137, 180, 250, 0.5);
+  border-color: #ffffff;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
 }
 
 .thumbnail img {
@@ -633,21 +642,21 @@
   }
 
   .control-btn.play-btn {
-    width: 56px;
-    height: 56px;
-    font-size: 1.3rem;
+    width: 60px;
+    height: 60px;
+    font-size: 1.4rem;
   }
 }
 
 /* Mobile */
 @media (max-width: 640px) {
   .slideshow-player {
-    border-radius: 10px;
+    border-radius: 14px;
     min-height: 200px;
   }
 
   .player-overlay {
-    padding: 12px;
+    padding: 14px;
     opacity: 1;
   }
 
@@ -660,9 +669,9 @@
   }
 
   .control-btn.play-btn {
-    width: 52px;
-    height: 52px;
-    font-size: 1.2rem;
+    width: 54px;
+    height: 54px;
+    font-size: 1.25rem;
   }
 
   .control-btn:hover {
@@ -674,26 +683,26 @@
   }
 
   .slide-counter {
-    top: 12px;
-    right: 12px;
-    padding: 4px 10px;
+    top: 14px;
+    right: 14px;
+    padding: 5px 12px;
     font-size: 0.8rem;
   }
 
   .thumbnail-strip {
-    gap: 6px;
-    padding: 6px 0;
+    gap: 8px;
+    padding: 8px 0;
     -webkit-overflow-scrolling: touch;
   }
 
   .thumbnail {
-    width: 50px;
-    height: 34px;
-    border-radius: 3px;
+    width: 52px;
+    height: 36px;
+    border-radius: 4px;
   }
 
   .progress-bar {
-    height: 3px;
+    height: 2px;
   }
 
   .empty-icon {
@@ -708,16 +717,16 @@
 /* Small phones */
 @media (max-width: 380px) {
   .slideshow-player {
-    border-radius: 8px;
+    border-radius: 12px;
     min-height: 180px;
   }
 
   .player-overlay {
-    padding: 8px;
+    padding: 10px;
   }
 
   .player-controls {
-    gap: 8px;
+    gap: 10px;
   }
 
   .control-btn {
@@ -727,18 +736,18 @@
   }
 
   .control-btn.play-btn {
-    width: 46px;
-    height: 46px;
+    width: 48px;
+    height: 48px;
     font-size: 1.1rem;
   }
 
   .thumbnail {
-    width: 44px;
-    height: 30px;
+    width: 46px;
+    height: 32px;
   }
 
   .slide-counter {
-    padding: 3px 8px;
+    padding: 4px 10px;
     font-size: 0.75rem;
   }
 
@@ -759,7 +768,7 @@
   }
 
   .player-overlay {
-    padding: 8px 16px;
+    padding: 10px 18px;
   }
 
   .control-btn {
@@ -769,8 +778,8 @@
   }
 
   .control-btn.play-btn {
-    width: 44px;
-    height: 44px;
+    width: 46px;
+    height: 46px;
     font-size: 1rem;
   }
 
@@ -779,9 +788,9 @@
   }
 
   .slide-counter {
-    top: 8px;
-    right: 8px;
-    padding: 3px 8px;
+    top: 10px;
+    right: 10px;
+    padding: 4px 10px;
     font-size: 0.75rem;
   }
 }
