@@ -47,12 +47,16 @@ export function Controls({
     }
   };
 
-  const estimatedDuration = photosCount * settings.photoDuration;
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.round(seconds % 60);
     return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
   };
+
+  const baseDuration = photosCount * settings.photoDuration;
+  const estimatedDuration = settings.fitToMusic && audio?.duration
+    ? audio.duration
+    : baseDuration;
 
   return (
     <div className="controls">
@@ -143,6 +147,11 @@ export function Controls({
               <span className="audio-name" title={audio.name}>
                 {audio.name}
               </span>
+              {audio.duration > 0 && (
+                <span className="audio-duration">
+                  {formatDuration(audio.duration)}
+                </span>
+              )}
               <button
                 className="remove-audio-btn"
                 onClick={() => onSetAudio(null)}
@@ -150,6 +159,16 @@ export function Controls({
                 &times;
               </button>
             </div>
+          )}
+          {audio && audio.duration > 0 && (
+            <label className="fit-to-music-label">
+              <input
+                type="checkbox"
+                checked={settings.fitToMusic}
+                onChange={(e) => onUpdateSettings({ fitToMusic: e.target.checked })}
+              />
+              Repetir fotos ate o fim da musica
+            </label>
           )}
         </div>
       </div>

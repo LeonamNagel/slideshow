@@ -145,7 +145,8 @@ export function useVideoExport() {
   const renderFrames = async (
     photos: Photo[],
     settings: SlideshowSettings,
-    options: ExportOptions
+    options: ExportOptions,
+    targetDuration?: number // duração total desejada em segundos
   ): Promise<Blob[]> => {
     const { width, height, fps } = options;
     const canvas = document.createElement('canvas');
@@ -155,7 +156,11 @@ export function useVideoExport() {
 
     const framesPerPhoto = Math.round(settings.photoDuration * fps);
     const transitionFrames = Math.round((settings.transitionDuration / 1000) * fps);
-    const totalFrames = photos.length * framesPerPhoto;
+
+    // Calcular total de frames baseado na duração alvo ou nas fotos
+    const baseDuration = photos.length * settings.photoDuration;
+    const totalDuration = targetDuration || baseDuration;
+    const totalFrames = Math.round(totalDuration * fps);
 
     const frames: Blob[] = [];
     const images: HTMLImageElement[] = [];
@@ -171,11 +176,13 @@ export function useVideoExport() {
       images.push(await loadImage(photo.url));
     }
 
-    // Render frames
+    // Render frames (com loop de fotos se necessário)
     for (let frame = 0; frame < totalFrames; frame++) {
       if (abortRef.current) throw new Error('Export cancelled');
 
-      const photoIndex = Math.floor(frame / framesPerPhoto);
+      // Calcular qual foto mostrar (com loop)
+      const absolutePhotoIndex = Math.floor(frame / framesPerPhoto);
+      const photoIndex = absolutePhotoIndex % photos.length;
       const frameInPhoto = frame % framesPerPhoto;
       const photoProgress = frameInPhoto / framesPerPhoto;
 
@@ -187,8 +194,8 @@ export function useVideoExport() {
       const isCinematic = isCinematicEffect(settings.transitionEffect);
 
       if (isCinematic) {
-        // Ken Burns animation
-        const config = getAnimationConfig(photoIndex, settings.transitionEffect);
+        // Ken Burns animation - usar absolutePhotoIndex para variar as animações
+        const config = getAnimationConfig(absolutePhotoIndex, settings.transitionEffect);
         const easedProgress = easeInOutCubic(photoProgress);
 
         const scale = config.startScale + (config.endScale - config.startScale) * easedProgress;
@@ -196,10 +203,11 @@ export function useVideoExport() {
         const offsetY = config.startY + (config.endY - config.startY) * easedProgress;
 
         // Handle crossfade transition
-        if (frameInPhoto < transitionFrames && photoIndex > 0) {
+        if (frameInPhoto < transitionFrames && absolutePhotoIndex > 0) {
           const transitionProgress = frameInPhoto / transitionFrames;
-          const prevImg = images[photoIndex - 1];
-          const prevConfig = getAnimationConfig(photoIndex - 1, settings.transitionEffect);
+          const prevPhotoIndex = (absolutePhotoIndex - 1) % photos.length;
+          const prevImg = images[prevPhotoIndex];
+          const prevConfig = getAnimationConfig(absolutePhotoIndex - 1, settings.transitionEffect);
 
           // Draw previous image fading out
           ctx.globalAlpha = 1 - transitionProgress;
@@ -221,9 +229,10 @@ export function useVideoExport() {
         ctx.globalAlpha = 1;
       } else {
         // Simple transition
-        if (frameInPhoto < transitionFrames && photoIndex > 0) {
+        if (frameInPhoto < transitionFrames && absolutePhotoIndex > 0) {
           const transitionProgress = frameInPhoto / transitionFrames;
-          const prevImg = images[photoIndex - 1];
+          const prevPhotoIndex = (absolutePhotoIndex - 1) % photos.length;
+          const prevImg = images[prevPhotoIndex];
 
           ctx.globalAlpha = 1 - transitionProgress;
           drawImageCover(ctx, prevImg, width, height, 1, 0, 0);
@@ -272,8 +281,13 @@ export function useVideoExport() {
         });
         const ffmpeg = await loadFFmpeg();
 
+        // Calcular duração alvo (se fitToMusic estiver ativo)
+        const targetDuration = settings.fitToMusic && audio?.duration
+          ? audio.duration
+          : undefined;
+
         // Render frames
-        const frames = await renderFrames(photos, settings, opts);
+        const frames = await renderFrames(photos, settings, opts, targetDuration);
 
         // Write frames to FFmpeg filesystem
         setProgress({
@@ -303,7 +317,9 @@ export function useVideoExport() {
         }
 
         // Calculate video duration
-        const videoDuration = photos.length * settings.photoDuration;
+        const videoDuration = settings.fitToMusic && audio?.duration
+          ? audio.duration
+          : photos.length * settings.photoDuration;
 
         // Encode video
         setProgress({

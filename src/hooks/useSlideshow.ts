@@ -5,9 +5,10 @@ import type { Photo, SlideshowSettings, AudioTrack, TransitionEffect } from '../
 const defaultSettings: SlideshowSettings = {
   photoDuration: 3,
   transitionDuration: 500,
-  transitionEffect: 'fade',
+  transitionEffect: 'cinematic',
   autoPlay: true,
   loop: true,
+  fitToMusic: false,
 };
 
 export function useSlideshow() {
@@ -65,11 +66,30 @@ export function useSlideshow() {
     }
 
     if (file && file.type.startsWith('audio/')) {
-      setAudio({
-        file,
-        url: URL.createObjectURL(file),
-        name: file.name,
+      const url = URL.createObjectURL(file);
+
+      // Detectar duração do áudio
+      const audioElement = new Audio(url);
+      audioElement.addEventListener('loadedmetadata', () => {
+        setAudio({
+          file,
+          url,
+          name: file.name,
+          duration: audioElement.duration,
+        });
       });
+
+      // Fallback caso o evento não dispare
+      audioElement.addEventListener('error', () => {
+        setAudio({
+          file,
+          url,
+          name: file.name,
+          duration: 0,
+        });
+      });
+
+      audioElement.load();
     } else {
       setAudio(null);
     }

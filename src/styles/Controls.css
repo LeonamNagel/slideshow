@@ -132,6 +132,29 @@
   white-space: nowrap;
 }
 
+.audio-duration {
+  color: #6c7086;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.fit-to-music-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #a6adc8;
+  font-size: 0.85rem;
+  padding: 8px 0;
+}
+
+.fit-to-music-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #cba6f7;
+  cursor: pointer;
+}
+
 .remove-audio-btn {
   background: #f38ba8;
   color: #1e1e2e;

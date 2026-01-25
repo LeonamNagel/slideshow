@@ -37,10 +37,12 @@ export interface SlideshowSettings {
   transitionEffect: TransitionEffect;
   autoPlay: boolean;
   loop: boolean;
+  fitToMusic: boolean; // repetir fotos até o fim da música
 }
 
 export interface AudioTrack {
   file: File;
   url: string;
   name: string;
+  duration: number; // duração em segundos
 }
