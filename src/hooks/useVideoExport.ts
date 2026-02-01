@@ -76,7 +76,8 @@ export function useVideoExport() {
     });
   };
 
-  const drawImageCover = (
+  // Draw image preserving aspect ratio with letterbox/pillarbox (black bars)
+  const drawImageContain = (
     ctx: CanvasRenderingContext2D,
     img: HTMLImageElement,
     canvasWidth: number,
@@ -91,12 +92,15 @@ export function useVideoExport() {
     let drawWidth: number;
     let drawHeight: number;
 
+    // Contain: fit image inside canvas without cropping
     if (imgRatio > canvasRatio) {
-      drawHeight = canvasHeight * scale;
-      drawWidth = drawHeight * imgRatio;
-    } else {
+      // Image is wider than canvas - fit to width
       drawWidth = canvasWidth * scale;
       drawHeight = drawWidth / imgRatio;
+    } else {
+      // Image is taller than canvas - fit to height
+      drawHeight = canvasHeight * scale;
+      drawWidth = drawHeight * imgRatio;
     }
 
     const x = (canvasWidth - drawWidth) / 2 + offsetX * canvasWidth;
@@ -186,8 +190,8 @@ export function useVideoExport() {
       const frameInPhoto = frame % framesPerPhoto;
       const photoProgress = frameInPhoto / framesPerPhoto;
 
-      // Clear canvas
-      ctx.fillStyle = '#11111b';
+      // Clear canvas with black background
+      ctx.fillStyle = '#000000';
       ctx.fillRect(0, 0, width, height);
 
       const currentImg = images[photoIndex];
@@ -211,7 +215,7 @@ export function useVideoExport() {
 
           // Draw previous image fading out
           ctx.globalAlpha = 1 - transitionProgress;
-          drawImageCover(
+          drawImageContain(
             ctx,
             prevImg,
             width,
@@ -225,7 +229,7 @@ export function useVideoExport() {
           ctx.globalAlpha = transitionProgress;
         }
 
-        drawImageCover(ctx, currentImg, width, height, scale, offsetX, offsetY);
+        drawImageContain(ctx, currentImg, width, height, scale, offsetX, offsetY);
         ctx.globalAlpha = 1;
       } else {
         // Simple transition
@@ -235,11 +239,11 @@ export function useVideoExport() {
           const prevImg = images[prevPhotoIndex];
 
           ctx.globalAlpha = 1 - transitionProgress;
-          drawImageCover(ctx, prevImg, width, height, 1, 0, 0);
+          drawImageContain(ctx, prevImg, width, height, 1, 0, 0);
           ctx.globalAlpha = transitionProgress;
         }
 
-        drawImageCover(ctx, currentImg, width, height, 1, 0, 0);
+        drawImageContain(ctx, currentImg, width, height, 1, 0, 0);
         ctx.globalAlpha = 1;
       }
 
