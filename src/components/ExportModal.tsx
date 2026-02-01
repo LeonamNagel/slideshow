@@ -19,6 +19,8 @@ export function ExportModal({ isOpen, progress, onCancel, onClose }: ExportModal
     switch (progress.stage) {
       case 'loading':
         return '⏳';
+      case 'preparing':
+        return '📷';
       case 'rendering':
         return '🎬';
       case 'encoding':
@@ -36,6 +38,8 @@ export function ExportModal({ isOpen, progress, onCancel, onClose }: ExportModal
     switch (progress.stage) {
       case 'loading':
         return 'Carregando';
+      case 'preparing':
+        return 'Preparando';
       case 'rendering':
         return 'Renderizando';
       case 'encoding':
@@ -71,6 +75,12 @@ export function ExportModal({ isOpen, progress, onCancel, onClose }: ExportModal
           </div>
 
           <p className="export-message">{progress.message}</p>
+
+          {progress.currentFrame && progress.totalFrames && (
+            <p className="export-frames">
+              Frame {progress.currentFrame} de {progress.totalFrames}
+            </p>
+          )}
 
           {!canClose && (
             <p className="export-warning">

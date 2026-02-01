@@ -1,5 +1,6 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import type { SlideshowSettings, TransitionEffect, AudioTrack } from '../types';
+import type { ExportQuality } from '../hooks/useVideoExport';
 import '../styles/Controls.css';
 
 const TRANSITION_OPTIONS: { value: TransitionEffect; label: string; description?: string }[] = [
@@ -20,6 +21,12 @@ const TRANSITION_OPTIONS: { value: TransitionEffect; label: string; description?
   { value: 'blur', label: 'Blur' },
 ];
 
+const QUALITY_OPTIONS: { value: ExportQuality; label: string; description: string }[] = [
+  { value: 'fast', label: 'Rapido', description: '720p 24fps - Exportacao rapida' },
+  { value: 'medium', label: 'Medio', description: '1080p 30fps - Balanceado' },
+  { value: 'high', label: 'Alta', description: '1080p 30fps - Melhor qualidade' },
+];
+
 interface ControlsProps {
   settings: SlideshowSettings;
   audio: AudioTrack | null;
@@ -27,7 +34,7 @@ interface ControlsProps {
   isExporting: boolean;
   onUpdateSettings: (updates: Partial<SlideshowSettings>) => void;
   onSetAudio: (file: File | null) => void;
-  onExport: () => void;
+  onExport: (quality: ExportQuality) => void;
 }
 
 export function Controls({
@@ -40,6 +47,7 @@ export function Controls({
   onExport,
 }: ControlsProps) {
   const audioInputRef = useRef<HTMLInputElement>(null);
+  const [exportQuality, setExportQuality] = useState<ExportQuality>('medium');
 
   const handleAudioSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -174,6 +182,20 @@ export function Controls({
       </div>
 
       <div className="control-group export-section">
+        <label htmlFor="export-quality">Qualidade da Exportacao</label>
+        <select
+          id="export-quality"
+          value={exportQuality}
+          onChange={(e) => setExportQuality(e.target.value as ExportQuality)}
+          disabled={isExporting}
+        >
+          {QUALITY_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label} - {option.description}
+            </option>
+          ))}
+        </select>
+
         <div className="export-info">
           {photosCount > 0 && (
             <span className="export-duration">
@@ -183,7 +205,7 @@ export function Controls({
         </div>
         <button
           className="export-btn"
-          onClick={onExport}
+          onClick={() => onExport(exportQuality)}
           disabled={photosCount === 0 || isExporting}
         >
           {isExporting ? 'Exportando...' : 'Exportar MP4'}

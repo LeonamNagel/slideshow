@@ -4,21 +4,49 @@ import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import type { Photo, SlideshowSettings, AudioTrack } from '../types';
 
 export interface ExportProgress {
-  stage: 'loading' | 'rendering' | 'encoding' | 'done' | 'error';
-  progress: number; // 0-100
+  stage: 'loading' | 'preparing' | 'rendering' | 'encoding' | 'done' | 'error';
+  progress: number;
   message: string;
+  currentFrame?: number;
+  totalFrames?: number;
 }
 
-interface ExportOptions {
+export type ExportQuality = 'fast' | 'medium' | 'high';
+
+interface QualityPreset {
   width: number;
   height: number;
   fps: number;
+  jpegQuality: number;
+  crf: number; // FFmpeg quality (lower = better, 18-28 is good range)
+  preset: string; // FFmpeg preset
 }
 
-const DEFAULT_OPTIONS: ExportOptions = {
-  width: 1920,
-  height: 1080,
-  fps: 30,
+const QUALITY_PRESETS: Record<ExportQuality, QualityPreset> = {
+  fast: {
+    width: 1280,
+    height: 720,
+    fps: 24,
+    jpegQuality: 0.8,
+    crf: 28,
+    preset: 'veryfast',
+  },
+  medium: {
+    width: 1920,
+    height: 1080,
+    fps: 30,
+    jpegQuality: 0.85,
+    crf: 23,
+    preset: 'medium',
+  },
+  high: {
+    width: 1920,
+    height: 1080,
+    fps: 30,
+    jpegQuality: 0.92,
+    crf: 18,
+    preset: 'slow',
+  },
 };
 
 // Ken Burns animation configurations
@@ -32,6 +60,12 @@ const KENBURNS_CONFIGS = [
   { startScale: 1.1, endScale: 1.1, startX: -0.03, endX: 0.03, startY: 0, endY: 0 },
   { startScale: 1.05, endScale: 1.12, startX: -0.02, endX: 0.02, startY: -0.01, endY: 0.01 },
 ];
+
+// Pre-processed image data for faster rendering
+interface ProcessedImage {
+  bitmap: ImageBitmap;
+  aspectRatio: number;
+}
 
 export function useVideoExport() {
   const [isExporting, setIsExporting] = useState(false);
@@ -53,7 +87,7 @@ export function useVideoExport() {
       setProgress(prev => ({
         ...prev,
         progress: Math.min(95, 50 + p * 45),
-        message: `Codificando video: ${Math.round(p * 100)}%`,
+        message: `Codificando vídeo: ${Math.round(p * 100)}%`,
       }));
     });
 
@@ -66,47 +100,61 @@ export function useVideoExport() {
     return ffmpeg;
   };
 
-  const loadImage = (url: string): Promise<HTMLImageElement> => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => resolve(img);
-      img.onerror = reject;
-      img.src = url;
-    });
+  // Load and pre-process images using ImageBitmap for faster rendering
+  const loadAndProcessImages = async (
+    photos: Photo[]
+  ): Promise<ProcessedImage[]> => {
+    const processedImages: ProcessedImage[] = [];
+
+    for (let i = 0; i < photos.length; i++) {
+      const response = await fetch(photos[i].url);
+      const blob = await response.blob();
+
+      // Create ImageBitmap - much faster than Image for canvas operations
+      const bitmap = await createImageBitmap(blob);
+
+      processedImages.push({
+        bitmap,
+        aspectRatio: bitmap.width / bitmap.height,
+      });
+
+      setProgress(prev => ({
+        ...prev,
+        progress: Math.round((i / photos.length) * 10),
+        message: `Carregando imagem ${i + 1} de ${photos.length}`,
+      }));
+    }
+
+    return processedImages;
   };
 
-  // Draw image preserving aspect ratio with letterbox/pillarbox (black bars)
+  // Draw image preserving aspect ratio with letterbox/pillarbox
   const drawImageContain = (
     ctx: CanvasRenderingContext2D,
-    img: HTMLImageElement,
+    img: ProcessedImage,
     canvasWidth: number,
     canvasHeight: number,
     scale: number,
     offsetX: number,
     offsetY: number
   ) => {
-    const imgRatio = img.width / img.height;
     const canvasRatio = canvasWidth / canvasHeight;
 
     let drawWidth: number;
     let drawHeight: number;
 
-    // Contain: fit image inside canvas without cropping
-    if (imgRatio > canvasRatio) {
-      // Image is wider than canvas - fit to width
+    if (img.aspectRatio > canvasRatio) {
       drawWidth = canvasWidth * scale;
-      drawHeight = drawWidth / imgRatio;
+      drawHeight = drawWidth / img.aspectRatio;
     } else {
-      // Image is taller than canvas - fit to height
       drawHeight = canvasHeight * scale;
-      drawWidth = drawHeight * imgRatio;
+      drawWidth = drawHeight * img.aspectRatio;
     }
 
     const x = (canvasWidth - drawWidth) / 2 + offsetX * canvasWidth;
     const y = (canvasHeight - drawHeight) / 2 + offsetY * canvasHeight;
 
-    ctx.drawImage(img, x, y, drawWidth, drawHeight);
+    ctx.drawImage(img.bitmap, x, y, drawWidth, drawHeight);
   };
 
   const isCinematicEffect = (effect: string) => {
@@ -146,47 +194,39 @@ export function useVideoExport() {
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   };
 
+  // Optimized frame rendering with batch processing
   const renderFrames = async (
-    photos: Photo[],
+    images: ProcessedImage[],
     settings: SlideshowSettings,
-    options: ExportOptions,
-    targetDuration?: number // duração total desejada em segundos
-  ): Promise<Blob[]> => {
-    const { width, height, fps } = options;
+    preset: QualityPreset,
+    targetDuration?: number
+  ): Promise<void> => {
+    const { width, height, fps, jpegQuality } = preset;
     const canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
-    const ctx = canvas.getContext('2d')!;
+    const ctx = canvas.getContext('2d', {
+      alpha: false,
+      desynchronized: true // Hint for better performance
+    })!;
 
     const framesPerPhoto = Math.round(settings.photoDuration * fps);
     const transitionFrames = Math.round((settings.transitionDuration / 1000) * fps);
 
-    // Calcular total de frames baseado na duração alvo ou nas fotos
-    const baseDuration = photos.length * settings.photoDuration;
+    const baseDuration = images.length * settings.photoDuration;
     const totalDuration = targetDuration || baseDuration;
     const totalFrames = Math.round(totalDuration * fps);
 
-    const frames: Blob[] = [];
-    const images: HTMLImageElement[] = [];
+    const ffmpeg = ffmpegRef.current!;
 
-    // Pre-load all images
-    setProgress({
-      stage: 'rendering',
-      progress: 0,
-      message: 'Carregando imagens...',
-    });
+    // Process frames in batches for better memory management
+    const BATCH_SIZE = 30;
 
-    for (const photo of photos) {
-      images.push(await loadImage(photo.url));
-    }
-
-    // Render frames (com loop de fotos se necessário)
     for (let frame = 0; frame < totalFrames; frame++) {
       if (abortRef.current) throw new Error('Export cancelled');
 
-      // Calcular qual foto mostrar (com loop)
       const absolutePhotoIndex = Math.floor(frame / framesPerPhoto);
-      const photoIndex = absolutePhotoIndex % photos.length;
+      const photoIndex = absolutePhotoIndex % images.length;
       const frameInPhoto = frame % framesPerPhoto;
       const photoProgress = frameInPhoto / framesPerPhoto;
 
@@ -198,7 +238,6 @@ export function useVideoExport() {
       const isCinematic = isCinematicEffect(settings.transitionEffect);
 
       if (isCinematic) {
-        // Ken Burns animation - usar absolutePhotoIndex para variar as animações
         const config = getAnimationConfig(absolutePhotoIndex, settings.transitionEffect);
         const easedProgress = easeInOutCubic(photoProgress);
 
@@ -206,36 +245,23 @@ export function useVideoExport() {
         const offsetX = config.startX + (config.endX - config.startX) * easedProgress;
         const offsetY = config.startY + (config.endY - config.startY) * easedProgress;
 
-        // Handle crossfade transition
         if (frameInPhoto < transitionFrames && absolutePhotoIndex > 0) {
           const transitionProgress = frameInPhoto / transitionFrames;
-          const prevPhotoIndex = (absolutePhotoIndex - 1) % photos.length;
+          const prevPhotoIndex = (absolutePhotoIndex - 1) % images.length;
           const prevImg = images[prevPhotoIndex];
           const prevConfig = getAnimationConfig(absolutePhotoIndex - 1, settings.transitionEffect);
 
-          // Draw previous image fading out
           ctx.globalAlpha = 1 - transitionProgress;
-          drawImageContain(
-            ctx,
-            prevImg,
-            width,
-            height,
-            prevConfig.endScale,
-            prevConfig.endX,
-            prevConfig.endY
-          );
-
-          // Draw current image fading in
+          drawImageContain(ctx, prevImg, width, height, prevConfig.endScale, prevConfig.endX, prevConfig.endY);
           ctx.globalAlpha = transitionProgress;
         }
 
         drawImageContain(ctx, currentImg, width, height, scale, offsetX, offsetY);
         ctx.globalAlpha = 1;
       } else {
-        // Simple transition
         if (frameInPhoto < transitionFrames && absolutePhotoIndex > 0) {
           const transitionProgress = frameInPhoto / transitionFrames;
-          const prevPhotoIndex = (absolutePhotoIndex - 1) % photos.length;
+          const prevPhotoIndex = (absolutePhotoIndex - 1) % images.length;
           const prevImg = images[prevPhotoIndex];
 
           ctx.globalAlpha = 1 - transitionProgress;
@@ -247,20 +273,35 @@ export function useVideoExport() {
         ctx.globalAlpha = 1;
       }
 
-      // Convert canvas to blob
+      // Convert to blob and write directly to FFmpeg
       const blob = await new Promise<Blob>((resolve) => {
-        canvas.toBlob((b) => resolve(b!), 'image/jpeg', 0.95);
+        canvas.toBlob((b) => resolve(b!), 'image/jpeg', jpegQuality);
       });
-      frames.push(blob);
 
-      setProgress({
-        stage: 'rendering',
-        progress: Math.round((frame / totalFrames) * 50),
-        message: `Renderizando frame ${frame + 1} de ${totalFrames}`,
-      });
+      const frameData = await blob.arrayBuffer();
+      await ffmpeg.writeFile(
+        `frame${String(frame).padStart(6, '0')}.jpg`,
+        new Uint8Array(frameData)
+      );
+
+      // Update progress
+      if (frame % 10 === 0 || frame === totalFrames - 1) {
+        setProgress({
+          stage: 'rendering',
+          progress: Math.round((frame / totalFrames) * 50),
+          message: `Renderizando: ${frame + 1}/${totalFrames} frames`,
+          currentFrame: frame + 1,
+          totalFrames,
+        });
+      }
+
+      // Allow UI to update periodically
+      if (frame % BATCH_SIZE === 0) {
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
     }
 
-    return frames;
+    return;
   };
 
   const exportVideo = useCallback(
@@ -268,11 +309,11 @@ export function useVideoExport() {
       photos: Photo[],
       settings: SlideshowSettings,
       audio: AudioTrack | null,
-      options: Partial<ExportOptions> = {}
+      quality: ExportQuality = 'medium'
     ): Promise<Blob | null> => {
       if (photos.length === 0) return null;
 
-      const opts = { ...DEFAULT_OPTIONS, ...options };
+      const preset = QUALITY_PRESETS[quality];
       setIsExporting(true);
       abortRef.current = false;
 
@@ -281,37 +322,43 @@ export function useVideoExport() {
         setProgress({
           stage: 'loading',
           progress: 0,
-          message: 'Carregando codificador de video...',
+          message: 'Carregando codificador de vídeo...',
         });
         const ffmpeg = await loadFFmpeg();
 
-        // Calcular duração alvo (se fitToMusic estiver ativo)
+        // Pre-process images
+        setProgress({
+          stage: 'preparing',
+          progress: 0,
+          message: 'Preparando imagens...',
+        });
+        const images = await loadAndProcessImages(photos);
+
+        // Calculate target duration
         const targetDuration = settings.fitToMusic && audio?.duration
           ? audio.duration
           : undefined;
 
-        // Render frames
-        const frames = await renderFrames(photos, settings, opts, targetDuration);
-
-        // Write frames to FFmpeg filesystem
+        // Render frames directly to FFmpeg filesystem
         setProgress({
-          stage: 'encoding',
-          progress: 50,
-          message: 'Preparando frames...',
+          stage: 'rendering',
+          progress: 10,
+          message: 'Renderizando frames...',
         });
+        await renderFrames(images, settings, preset, targetDuration);
 
-        for (let i = 0; i < frames.length; i++) {
-          const frameData = await frames[i].arrayBuffer();
-          await ffmpeg.writeFile(
-            `frame${String(i).padStart(6, '0')}.jpg`,
-            new Uint8Array(frameData)
-          );
-        }
+        // Clean up ImageBitmaps
+        images.forEach(img => img.bitmap.close());
 
         // Write audio if present
         let hasAudio = false;
         if (audio) {
           try {
+            setProgress({
+              stage: 'encoding',
+              progress: 50,
+              message: 'Processando áudio...',
+            });
             const audioData = await fetchFile(audio.url);
             await ffmpeg.writeFile('audio.mp3', audioData);
             hasAudio = true;
@@ -325,15 +372,15 @@ export function useVideoExport() {
           ? audio.duration
           : photos.length * settings.photoDuration;
 
-        // Encode video
+        // Encode video with optimized settings
         setProgress({
           stage: 'encoding',
           progress: 55,
-          message: 'Codificando video...',
+          message: 'Codificando vídeo H.264...',
         });
 
         const ffmpegArgs = [
-          '-framerate', String(opts.fps),
+          '-framerate', String(preset.fps),
           '-i', 'frame%06d.jpg',
         ];
 
@@ -347,8 +394,9 @@ export function useVideoExport() {
         ffmpegArgs.push(
           '-c:v', 'libx264',
           '-pix_fmt', 'yuv420p',
-          '-preset', 'medium',
-          '-crf', '23',
+          '-preset', preset.preset,
+          '-crf', String(preset.crf),
+          '-movflags', '+faststart', // Better for web playback
         );
 
         if (hasAudio) {
@@ -369,19 +417,28 @@ export function useVideoExport() {
         const data = await ffmpeg.readFile('output.mp4');
         const videoBlob = new Blob([new Uint8Array(data as Uint8Array)], { type: 'video/mp4' });
 
-        // Cleanup
-        for (let i = 0; i < frames.length; i++) {
-          await ffmpeg.deleteFile(`frame${String(i).padStart(6, '0')}.jpg`);
+        // Cleanup - delete frames in batches
+        const totalFrames = Math.round(
+          (targetDuration || photos.length * settings.photoDuration) * preset.fps
+        );
+
+        for (let i = 0; i < totalFrames; i++) {
+          try {
+            await ffmpeg.deleteFile(`frame${String(i).padStart(6, '0')}.jpg`);
+          } catch {
+            // Ignore cleanup errors
+          }
         }
+
         if (hasAudio) {
-          await ffmpeg.deleteFile('audio.mp3');
+          try { await ffmpeg.deleteFile('audio.mp3'); } catch {}
         }
-        await ffmpeg.deleteFile('output.mp4');
+        try { await ffmpeg.deleteFile('output.mp4'); } catch {}
 
         setProgress({
           stage: 'done',
           progress: 100,
-          message: 'Video exportado com sucesso!',
+          message: 'Vídeo exportado com sucesso!',
         });
 
         return videoBlob;
@@ -390,7 +447,7 @@ export function useVideoExport() {
         setProgress({
           stage: 'error',
           progress: 0,
-          message: error instanceof Error ? error.message : 'Erro ao exportar video',
+          message: error instanceof Error ? error.message : 'Erro ao exportar vídeo',
         });
         return null;
       } finally {
@@ -421,5 +478,6 @@ export function useVideoExport() {
     exportVideo,
     cancelExport,
     downloadVideo,
+    qualityPresets: QUALITY_PRESETS,
   };
 }

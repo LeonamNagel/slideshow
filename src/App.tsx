@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSlideshow } from './hooks/useSlideshow';
 import { useVideoExport } from './hooks/useVideoExport';
+import type { ExportQuality } from './hooks/useVideoExport';
 import { PhotoUpload } from './components/PhotoUpload';
 import { Controls } from './components/Controls';
 import { SlideshowPlayer } from './components/SlideshowPlayer';
@@ -12,12 +13,13 @@ function App() {
   const videoExport = useVideoExport();
   const [showExportModal, setShowExportModal] = useState(false);
 
-  const handleExport = async () => {
+  const handleExport = async (quality: ExportQuality) => {
     setShowExportModal(true);
     const blob = await videoExport.exportVideo(
       slideshow.photos,
       slideshow.settings,
-      slideshow.audio
+      slideshow.audio,
+      quality
     );
 
     if (blob) {
