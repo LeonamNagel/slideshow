@@ -374,7 +374,16 @@ export function useVideoExport() {
       message: 'Finalizando video...',
     }));
 
-    return await encoder.finalize();
+    try {
+      console.log('[Export] Calling encoder.finalize()...');
+      const blob = await encoder.finalize();
+      console.log(`[Export] Finalize complete, blob size: ${blob.size} bytes`);
+      return blob;
+    } catch (e) {
+      console.error('[Export] Finalize failed:', e);
+      encoder.close();
+      throw e;
+    }
   };
 
   // FFmpeg export path (fallback)
