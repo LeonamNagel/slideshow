@@ -25,6 +25,8 @@ export function ExportModal({ isOpen, progress, onCancel, onClose }: ExportModal
         return '🎬';
       case 'encoding':
         return '⚙️';
+      case 'muxing':
+        return '📦';
       case 'done':
         return '✅';
       case 'error':
@@ -44,6 +46,8 @@ export function ExportModal({ isOpen, progress, onCancel, onClose }: ExportModal
         return 'Renderizando';
       case 'encoding':
         return 'Codificando';
+      case 'muxing':
+        return 'Finalizando';
       case 'done':
         return 'Concluido';
       case 'error':
@@ -53,12 +57,34 @@ export function ExportModal({ isOpen, progress, onCancel, onClose }: ExportModal
     }
   };
 
+  const getEncoderBadge = () => {
+    if (!progress.encoder) return null;
+
+    switch (progress.encoder) {
+      case 'webcodecs-hardware':
+        return { label: 'GPU', className: 'encoder-badge gpu' };
+      case 'webcodecs-software':
+        return { label: 'WebCodecs', className: 'encoder-badge webcodecs' };
+      case 'ffmpeg':
+        return { label: 'FFmpeg', className: 'encoder-badge ffmpeg' };
+      default:
+        return null;
+    }
+  };
+
+  const encoderBadge = getEncoderBadge();
+
   return (
     <div className="export-modal-overlay">
       <div className="export-modal">
         <div className="export-modal-header">
           <span className="export-icon">{getStageIcon()}</span>
-          <h2>Exportando Video</h2>
+          <div className="export-title-row">
+            <h2>Exportando Video</h2>
+            {encoderBadge && (
+              <span className={encoderBadge.className}>{encoderBadge.label}</span>
+            )}
+          </div>
         </div>
 
         <div className="export-modal-content">
@@ -79,6 +105,9 @@ export function ExportModal({ isOpen, progress, onCancel, onClose }: ExportModal
           {progress.currentFrame && progress.totalFrames && (
             <p className="export-frames">
               Frame {progress.currentFrame} de {progress.totalFrames}
+              {progress.fps && progress.fps > 0 && (
+                <span className="export-fps"> ({progress.fps} fps)</span>
+              )}
             </p>
           )}
 
@@ -86,7 +115,9 @@ export function ExportModal({ isOpen, progress, onCancel, onClose }: ExportModal
             <p className="export-warning">
               Nao feche esta janela durante a exportacao.
               <br />
-              Isso pode levar alguns minutos dependendo do tamanho do slideshow.
+              {progress.encoder === 'ffmpeg'
+                ? 'Isso pode levar alguns minutos dependendo do tamanho do slideshow.'
+                : 'O processamento com GPU e muito mais rapido!'}
             </p>
           )}
         </div>
