@@ -38,6 +38,7 @@ export interface SlideshowSettings {
   autoPlay: boolean;
   loop: boolean;
   fitToMusic: boolean; // repetir fotos até o fim da música
+  blurBackground: boolean; // usar blur da imagem no fundo em vez de preto
 }
 
 export interface AudioTrack {

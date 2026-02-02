@@ -134,6 +134,17 @@ export function Controls({
         </label>
       </div>
 
+      <div className="control-group checkbox-group">
+        <label>
+          <input
+            type="checkbox"
+            checked={settings.blurBackground}
+            onChange={(e) => onUpdateSettings({ blurBackground: e.target.checked })}
+          />
+          Fundo blur (em vez de preto)
+        </label>
+      </div>
+
       <div className="control-group">
         <label>Musica de Fundo</label>
         <div className="audio-controls">

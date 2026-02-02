@@ -226,6 +226,42 @@ export function useVideoExport() {
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   };
 
+  // Draw blurred background image (covers entire canvas)
+  const drawBlurBackground = (
+    ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+    img: ProcessedImage,
+    canvasWidth: number,
+    canvasHeight: number
+  ) => {
+    ctx.save();
+
+    // Apply blur filter
+    ctx.filter = 'blur(30px)';
+    ctx.globalAlpha = 0.5;
+
+    // Scale image to cover entire canvas (like background-size: cover)
+    const canvasRatio = canvasWidth / canvasHeight;
+    let drawWidth: number;
+    let drawHeight: number;
+
+    if (img.aspectRatio > canvasRatio) {
+      // Image is wider - fit to height and overflow width
+      drawHeight = canvasHeight * 1.2; // 1.2 to account for blur edge bleeding
+      drawWidth = drawHeight * img.aspectRatio;
+    } else {
+      // Image is taller - fit to width and overflow height
+      drawWidth = canvasWidth * 1.2;
+      drawHeight = drawWidth / img.aspectRatio;
+    }
+
+    const x = (canvasWidth - drawWidth) / 2;
+    const y = (canvasHeight - drawHeight) / 2;
+
+    ctx.drawImage(img.bitmap, x, y, drawWidth, drawHeight);
+
+    ctx.restore();
+  };
+
   // Render a single frame to canvas
   const renderFrameToCanvas = (
     ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
@@ -249,6 +285,12 @@ export function useVideoExport() {
     ctx.fillRect(0, 0, width, height);
 
     const currentImg = images[photoIndex];
+
+    // Draw blur background if enabled
+    if (settings.blurBackground) {
+      drawBlurBackground(ctx, currentImg, width, height);
+    }
+
     const isCinematic = isCinematicEffect(settings.transitionEffect);
 
     if (isCinematic) {

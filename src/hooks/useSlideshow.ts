@@ -15,6 +15,7 @@ const defaultSettings: SlideshowSettings = {
   autoPlay: true,
   loop: true,
   fitToMusic: false,
+  blurBackground: true,
 };
 
 export function useSlideshow() {

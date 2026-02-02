@@ -158,6 +158,12 @@ export function SlideshowPlayer({
               '--kenburns-animation': isCinematicEffect ? getAnimationForSlide(index) : undefined,
             } as React.CSSProperties}
           >
+            {settings.blurBackground && (
+              <div
+                className="slide-blur-bg"
+                style={{ backgroundImage: `url(${photo.url})` }}
+              />
+            )}
             <img src={photo.url} alt={photo.name} />
           </div>
         ))}
